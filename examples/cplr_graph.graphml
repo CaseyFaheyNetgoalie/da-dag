@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<graphml xmlns="http://graphml.graphdrawing.org/xmlns"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns
+         http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd">
+
+  <!-- Node attributes -->
+  <key id="kind" for="node" attr.name="kind" attr.type="string"/>
+  <key id="source" for="node" attr.name="source" attr.type="string"/>
+  <key id="authority" for="node" attr.name="authority" attr.type="string"/>
+  <key id="file_path" for="node" attr.name="file_path" attr.type="string"/>
+  <key id="line_number" for="node" attr.name="line_number" attr.type="int"/>
+
+  <!-- Edge attributes -->
+  <key id="dep_type" for="edge" attr.name="type" attr.type="string"/>
+  <key id="edge_file_path" for="edge" attr.name="file_path" attr.type="string"/>
+  <key id="edge_line_number" for="edge" attr.name="line_number" attr.type="int"/>
+
+  <graph id="ny_cplr_sample" edgedefault="directed">
+
+    <node id="date_filed">
+      <data key="kind">variable</data>
+      <data key="source">user_input</data>
+    </node>
+    <node id="date_served">
+      <data key="kind">variable</data>
+      <data key="source">user_input</data>
+    </node>
+    <node id="opposing_party_served">
+      <data key="kind">variable</data>
+      <data key="source">derived</data>
+    </node>
+    <node id="court_jurisdiction">
+      <data key="kind">variable</data>
+      <data key="source">user_input</data>
+    </node>
+    <node id="motion_type">
+      <data key="kind">variable</data>
+      <data key="source">user_input</data>
+    </node>
+    <node id="filing_deadline">
+      <data key="kind">variable</data>
+      <data key="source">derived</data>
+      <data key="authority">CPLR 2211</data>
+    </node>
+    <node id="service_method">
+      <data key="kind">variable</data>
+      <data key="source">user_input</data>
+    </node>
+    <node id="service_complete">
+      <data key="kind">variable</data>
+      <data key="source">derived</data>
+      <data key="authority">CPLR 308</data>
+    </node>
+    <node id="proof_of_service_filed">
+      <data key="kind">variable</data>
+      <data key="source">user_input</data>
+    </node>
+    <node id="motion_filed_on_time">
+      <data key="kind">variable</data>
+      <data key="source">derived</data>
+      <data key="authority">CPLR 2211, 308</data>
+    </node>
+    <node id="ask_court_jurisdiction">
+      <data key="kind">question</data>
+      <data key="source">user_input</data>
+      <data key="authority">CPLR 501</data>
+      <data key="file_path">examples/ny_cplr_sample.yaml</data>
+      <data key="line_number">33</data>
+    </node>
+    <node id="ask_motion_type">
+      <data key="kind">question</data>
+      <data key="source">user_input</data>
+      <data key="file_path">examples/ny_cplr_sample.yaml</data>
+      <data key="line_number">38</data>
+    </node>
+    <node id="ask_service_method">
+      <data key="kind">question</data>
+      <data key="source">user_input</data>
+      <data key="authority">CPLR 308</data>
+      <data key="file_path">examples/ny_cplr_sample.yaml</data>
+      <data key="line_number">47</data>
+    </node>
+    <node id="ask_date_filed">
+      <data key="kind">question</data>
+      <data key="source">user_input</data>
+      <data key="file_path">examples/ny_cplr_sample.yaml</data>
+      <data key="line_number">53</data>
+    </node>
+    <node id="ask_date_served">
+      <data key="kind">question</data>
+      <data key="source">user_input</data>
+      <data key="file_path">examples/ny_cplr_sample.yaml</data>
+      <data key="line_number">58</data>
+    </node>
+    <node id="ask_proof_of_service">
+      <data key="kind">question</data>
+      <data key="source">user_input</data>
+      <data key="authority">CPLR 308</data>
+      <data key="file_path">examples/ny_cplr_sample.yaml</data>
+      <data key="line_number">63</data>
+    </node>
+    <node id="motion_requirements_rule">
+      <data key="kind">rule</data>
+      <data key="source">derived</data>
+      <data key="authority">CPLR 2211, 308, 3212</data>
+      <data key="file_path">examples/ny_cplr_sample.yaml</data>
+      <data key="line_number">70</data>
+    </node>
+    <node id="deadline_calculation_rule">
+      <data key="kind">rule</data>
+      <data key="source">derived</data>
+      <data key="authority">CPLR 3212</data>
+      <data key="file_path">examples/ny_cplr_sample.yaml</data>
+      <data key="line_number">75</data>
+    </node>
+    <node id="service_validity_rule">
+      <data key="kind">rule</data>
+      <data key="source">derived</data>
+      <data key="authority">CPLR 308</data>
+      <data key="file_path">examples/ny_cplr_sample.yaml</data>
+      <data key="line_number">80</data>
+    </node>
+
+    <edge id="e0" source="motion_type" target="ask_service_method">
+      <data key="dep_type">explicit</data>
+      <data key="edge_file_path">examples/ny_cplr_sample.yaml</data>
+      <data key="edge_line_number">47</data>
+    </edge>
+    <edge id="e1" source="motion_filed_on_time" target="ask_date_filed">
+      <data key="dep_type">explicit</data>
+      <data key="edge_file_path">examples/ny_cplr_sample.yaml</data>
+      <data key="edge_line_number">53</data>
+    </edge>
+    <edge id="e2" source="service_method" target="ask_date_served">
+      <data key="dep_type">explicit</data>
+      <data key="edge_file_path">examples/ny_cplr_sample.yaml</data>
+      <data key="edge_line_number">58</data>
+    </edge>
+    <edge id="e3" source="service_complete" target="ask_proof_of_service">
+      <data key="dep_type">explicit</data>
+      <data key="edge_file_path">examples/ny_cplr_sample.yaml</data>
+      <data key="edge_line_number">63</data>
+    </edge>
+    <edge id="e4" source="motion_filed_on_time" target="motion_requirements_rule">
+      <data key="dep_type">implicit</data>
+      <data key="edge_file_path">examples/ny_cplr_sample.yaml</data>
+      <data key="edge_line_number">70</data>
+    </edge>
+    <edge id="e5" source="proof_of_service_filed" target="motion_requirements_rule">
+      <data key="dep_type">implicit</data>
+      <data key="edge_file_path">examples/ny_cplr_sample.yaml</data>
+      <data key="edge_line_number">70</data>
+    </edge>
+    <edge id="e6" source="opposing_party_served" target="motion_requirements_rule">
+      <data key="dep_type">implicit</data>
+      <data key="edge_file_path">examples/ny_cplr_sample.yaml</data>
+      <data key="edge_line_number">70</data>
+    </edge>
+    <edge id="e7" source="motion_type" target="deadline_calculation_rule">
+      <data key="dep_type">implicit</data>
+      <data key="edge_file_path">examples/ny_cplr_sample.yaml</data>
+      <data key="edge_line_number">75</data>
+    </edge>
+    <edge id="e8" source="service_method" target="service_validity_rule">
+      <data key="dep_type">implicit</data>
+      <data key="edge_file_path">examples/ny_cplr_sample.yaml</data>
+      <data key="edge_line_number">80</data>
+    </edge>
+    <edge id="e9" source="court_jurisdiction" target="filing_deadline">
+      <data key="dep_type">implicit</data>
+      <data key="edge_file_path">examples/ny_cplr_sample.yaml</data>
+      <data key="edge_line_number">12</data>
+    </edge>
+    <edge id="e10" source="motion_type" target="filing_deadline">
+      <data key="dep_type">implicit</data>
+      <data key="edge_file_path">examples/ny_cplr_sample.yaml</data>
+      <data key="edge_line_number">12</data>
+    </edge>
+    <edge id="e11" source="service_method" target="service_complete">
+      <data key="dep_type">implicit</data>
+      <data key="edge_file_path">examples/ny_cplr_sample.yaml</data>
+      <data key="edge_line_number">17</data>
+    </edge>
+    <edge id="e12" source="filing_deadline" target="motion_filed_on_time">
+      <data key="dep_type">implicit</data>
+      <data key="edge_file_path">examples/ny_cplr_sample.yaml</data>
+      <data key="edge_line_number">22</data>
+    </edge>
+    <edge id="e13" source="date_filed" target="motion_filed_on_time">
+      <data key="dep_type">implicit</data>
+      <data key="edge_file_path">examples/ny_cplr_sample.yaml</data>
+      <data key="edge_line_number">22</data>
+    </edge>
+    <edge id="e14" source="service_complete" target="motion_filed_on_time">
+      <data key="dep_type">implicit</data>
+      <data key="edge_file_path">examples/ny_cplr_sample.yaml</data>
+      <data key="edge_line_number">22</data>
+    </edge>
+    <edge id="e15" source="service_complete" target="opposing_party_served">
+      <data key="dep_type">implicit</data>
+      <data key="edge_file_path">examples/ny_cplr_sample.yaml</data>
+      <data key="edge_line_number">29</data>
+    </edge>
+    <edge id="e16" source="date_served" target="opposing_party_served">
+      <data key="dep_type">implicit</data>
+      <data key="edge_file_path">examples/ny_cplr_sample.yaml</data>
+      <data key="edge_line_number">29</data>
+    </edge>
+  </graph>
+</graphml>

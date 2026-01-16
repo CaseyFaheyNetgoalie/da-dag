@@ -1,0 +1,91 @@
+# Sample Docassemble Interview: New York CPLR Motion Practice
+# 
+# This demonstrates a legaltech use case for analyzing dependency graphs
+# in legal document automation workflows.
+#
+# Shows how legal rules, statutes, and procedural requirements create
+# explicit dependency relationships that can be analyzed and validated.
+#
+# Enhanced with conditional logic, decision trees, and compliance tracking
+
+variables:
+  - name: court_jurisdiction
+  - name: motion_type
+  - name: filing_deadline
+    expression: calculate_deadline(court_jurisdiction, motion_type)
+    authority: "CPLR 2211"
+  
+  - name: service_method
+  - name: service_complete
+    expression: service_method in ['personal', 'substituted', 'mail']
+    authority: "CPLR 308"
+  
+  - name: proof_of_service_filed
+  - name: motion_filed_on_time
+    expression: filing_deadline >= date_filed and service_complete
+    authority: "CPLR 2211, 308"
+
+fields:
+  - name: date_filed
+  - name: date_served
+  - name: opposing_party_served
+    expression: service_complete and date_served is not None
+
+questions:
+  - name: ask_court_jurisdiction
+    question: "What court has jurisdiction over this matter?"
+    variable: court_jurisdiction
+    authority: "CPLR 501"
+  
+  - name: ask_motion_type
+    question: "What type of motion are you filing?"
+    variable: motion_type
+    choices:
+      - "Summary Judgment"
+      - "Dismissal"
+      - "Discovery"
+      - "Default Judgment"
+    authority: "CPLR 2211"
+  
+  - name: ask_service_method
+    question: "How was the motion served on the opposing party?"
+    variable: service_method
+    required: motion_type
+    authority: "CPLR 308"
+    enable if: motion_type  # Only enable if motion type is selected
+  
+  - name: ask_date_filed
+    question: "On what date was the motion filed with the court?"
+    variable: date_filed
+    required: motion_filed_on_time
+    show if: motion_type  # Only show if motion type is selected
+    authority: "CPLR 2211"
+  
+  - name: ask_date_served
+    question: "On what date was the motion served on the opposing party?"
+    variable: date_served
+    required: service_method
+    enable if: service_complete  # Only enable if service is complete
+    authority: "CPLR 308"
+  
+  - name: ask_proof_of_service
+    question: "Has proof of service been filed with the court?"
+    variable: proof_of_service_filed
+    depends on: service_complete
+    authority: "CPLR 308"
+
+rules:
+  - name: motion_requirements_rule
+    expression: "motion_filed_on_time and proof_of_service_filed and opposing_party_served"
+    authority: "CPLR 2211, 308, 3212"
+    description: "All requirements for a valid motion must be met"
+  
+  - name: deadline_calculation_rule
+    expression: "if motion_type == 'Summary Judgment' then 120 else 60"
+    authority: "CPLR 3212"
+    description: "Summary judgment motions have different deadlines"
+  
+  - name: service_validity_rule
+    expression: "service_method in ['personal', 'substituted', 'mail', 'publication']"
+    authority: "CPLR 308"
+    description: "Service must be by one of the authorized methods"

@@ -1,0 +1,80 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, master, develop ]
+  pull_request:
+    branches: [ main, master, develop ]
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.7", "3.8", "3.9", "3.10", "3.11"]
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+        cache: 'pip'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -e ".[dev]"
+
+    - name: Lint with flake8
+      run: |
+        flake8 docassemble_dag tests --max-line-length=100 --extend-ignore=E203,W503 --count --statistics
+
+    - name: Check formatting with black
+      run: |
+        black --check docassemble_dag tests --line-length=100
+
+    - name: Check import sorting with isort
+      run: |
+        isort --check-only docassemble_dag tests --profile=black --line-length=100
+
+    - name: Type check with mypy
+      run: |
+        mypy docassemble_dag --ignore-missing-imports || true
+
+    - name: Run tests
+      run: |
+        pytest tests/ -v
+
+    - name: Generate coverage report
+      run: |
+        pytest tests/ --cov=docassemble_dag --cov-report=xml --cov-report=term-missing
+
+    - name: Upload coverage to Codecov (optional)
+      uses: codecov/codecov-action@v3
+      if: matrix.python-version == '3.9'
+      with:
+        file: ./coverage.xml
+        flags: unittests
+        name: codecov-umbrella
+
+  pre-commit:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.9'
+        cache: 'pip'
+    
+    - name: Install pre-commit
+      run: |
+        pip install pre-commit
+    
+    - name: Run pre-commit hooks
+      run: |
+        pre-commit run --all-files

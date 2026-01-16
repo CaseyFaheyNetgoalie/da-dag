@@ -1,0 +1,42 @@
+digraph "DAG: ny_cplr_sample.yaml" {
+  rankdir=LR;
+  node [shape=box, style=rounded];
+
+  "date_filed" [label="date_filed\n[variable]", fillcolor="lightblue", style="rounded,filled"];
+  "date_served" [label="date_served\n[variable]", fillcolor="lightblue", style="rounded,filled"];
+  "opposing_party_served" [label="opposing_party_served\n[variable]", fillcolor="lightblue", style="rounded,filled"];
+  "court_jurisdiction" [label="court_jurisdiction\n[variable]", fillcolor="lightblue", style="rounded,filled"];
+  "motion_type" [label="motion_type\n[variable]", fillcolor="lightblue", style="rounded,filled"];
+  "filing_deadline" [label="filing_deadline\n[variable]\nCPLR 2211...", fillcolor="lightblue", style="rounded,filled"];
+  "service_method" [label="service_method\n[variable]", fillcolor="lightblue", style="rounded,filled"];
+  "service_complete" [label="service_complete\n[variable]\nCPLR 308...", fillcolor="lightblue", style="rounded,filled"];
+  "proof_of_service_filed" [label="proof_of_service_filed\n[variable]", fillcolor="lightblue", style="rounded,filled"];
+  "motion_filed_on_time" [label="motion_filed_on_time\n[variable]\nCPLR 2211, 308...", fillcolor="lightblue", style="rounded,filled"];
+  "ask_court_jurisdiction" [label="ask_court_jurisdiction\n[question]\nCPLR 501...", fillcolor="lightgreen", style="rounded,filled"];
+  "ask_motion_type" [label="ask_motion_type\n[question]", fillcolor="lightgreen", style="rounded,filled"];
+  "ask_service_method" [label="ask_service_method\n[question]\nCPLR 308...", fillcolor="lightgreen", style="rounded,filled"];
+  "ask_date_filed" [label="ask_date_filed\n[question]", fillcolor="lightgreen", style="rounded,filled"];
+  "ask_date_served" [label="ask_date_served\n[question]", fillcolor="lightgreen", style="rounded,filled"];
+  "ask_proof_of_service" [label="ask_proof_of_service\n[question]\nCPLR 308...", fillcolor="lightgreen", style="rounded,filled"];
+  "motion_requirements_rule" [label="motion_requirements_rule\n[rule]\nCPLR 2211, 308, 3212...", fillcolor="lightyellow", style="rounded,filled"];
+  "deadline_calculation_rule" [label="deadline_calculation_rule\n[rule]\nCPLR 3212...", fillcolor="lightyellow", style="rounded,filled"];
+  "service_validity_rule" [label="service_validity_rule\n[rule]\nCPLR 308...", fillcolor="lightyellow", style="rounded,filled"];
+
+  "motion_type" -> "ask_service_method" [style=solid, label="explicit"];
+  "motion_filed_on_time" -> "ask_date_filed" [style=solid, label="explicit"];
+  "service_method" -> "ask_date_served" [style=solid, label="explicit"];
+  "service_complete" -> "ask_proof_of_service" [style=solid, label="explicit"];
+  "motion_filed_on_time" -> "motion_requirements_rule" [style=dashed, label="implicit"];
+  "proof_of_service_filed" -> "motion_requirements_rule" [style=dashed, label="implicit"];
+  "opposing_party_served" -> "motion_requirements_rule" [style=dashed, label="implicit"];
+  "motion_type" -> "deadline_calculation_rule" [style=dashed, label="implicit"];
+  "service_method" -> "service_validity_rule" [style=dashed, label="implicit"];
+  "court_jurisdiction" -> "filing_deadline" [style=dashed, label="implicit"];
+  "motion_type" -> "filing_deadline" [style=dashed, label="implicit"];
+  "service_method" -> "service_complete" [style=dashed, label="implicit"];
+  "filing_deadline" -> "motion_filed_on_time" [style=dashed, label="implicit"];
+  "date_filed" -> "motion_filed_on_time" [style=dashed, label="implicit"];
+  "service_complete" -> "motion_filed_on_time" [style=dashed, label="implicit"];
+  "service_complete" -> "opposing_party_served" [style=dashed, label="implicit"];
+  "date_served" -> "opposing_party_served" [style=dashed, label="implicit"];
+}

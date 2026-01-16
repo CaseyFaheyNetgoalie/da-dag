@@ -1,0 +1,76 @@
+name: Validate Docassemble Interviews
+
+on:
+  push:
+    branches: [ main, master, develop ]
+    paths:
+      - '**/*.yaml'
+      - '**/*.yml'
+  pull_request:
+    branches: [ main, master, develop ]
+    paths:
+      - '**/*.yaml'
+      - '**/*.yml'
+  workflow_dispatch:
+    inputs:
+      interview_path:
+        description: 'Path to interview file or directory'
+        required: true
+        default: 'interviews/'
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.9'
+        cache: 'pip'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -e .
+    
+    - name: Find YAML files
+      id: find_yaml
+      run: |
+        if [ -f "${{ github.event.inputs.interview_path || 'interviews/' }}" ]; then
+          echo "files=${{ github.event.inputs.interview_path || 'interviews/' }}" >> $GITHUB_OUTPUT
+        else
+          FILES=$(find ${{ github.event.inputs.interview_path || 'interviews/' }} -name "*.yaml" -o -name "*.yml" | tr '\n' ' ')
+          echo "files=$FILES" >> $GITHUB_OUTPUT
+        fi
+    
+    - name: Validate dependencies (cycles)
+      run: |
+        python -m docassemble_dag ${{ github.event.inputs.interview_path || 'interviews/' }} \
+          --check-cycles \
+          --recursive || exit 1
+    
+    - name: Run policy validation
+      run: |
+        python -m docassemble_dag ${{ github.event.inputs.interview_path || 'interviews/' }} \
+          --validate \
+          --fail-on-error \
+          --recursive || exit 1
+    
+    - name: Generate dependency graph
+      run: |
+        python -m docassemble_dag ${{ github.event.inputs.interview_path || 'interviews/' }} \
+          --format json \
+          --no-pretty \
+          --recursive \
+          -o dependency_graph.json || true
+    
+    - name: Upload dependency graph
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: dependency-graph
+        path: dependency_graph.json
+        retention-days: 30

@@ -1,0 +1,17 @@
+# Test interview with policy violations
+variables:
+  - name: age
+  - name: is_adult
+    expression: age >= 18 and undefined_var  # References undefined variable
+
+questions:
+  - name: ask_age
+    question: "How old are you?"
+    variable: age
+  
+  - name: unused_question
+    question: "This question is never used"
+
+# Orphan node - no connections
+variables:
+  - name: orphan_var

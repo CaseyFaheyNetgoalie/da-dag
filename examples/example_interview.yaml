@@ -1,0 +1,31 @@
+# Example Docassemble interview for testing
+# This demonstrates various dependency patterns
+
+variables:
+  - name: age
+  - name: is_adult
+    expression: age >= 18
+
+fields:
+  - name: income
+  - name: eligible_for_aid
+    expression: income < 30000 and is_adult
+
+questions:
+  - name: ask_age
+    question: "How old are you?"
+    variable: age
+  
+  - name: ask_income
+    question: "What is your annual income?"
+    variable: income
+    required: is_adult
+  
+  - name: ask_consent
+    question: "Do you consent to the terms?"
+    depends on: is_adult
+
+rules:
+  - name: eligibility_rule
+    expression: "eligible_for_aid and age >= 18"
+    authority: "42 U.S.C. § 12345"
