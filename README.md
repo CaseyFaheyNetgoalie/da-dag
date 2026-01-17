@@ -443,55 +443,9 @@ The tool uses pattern matching to find variable names in these contexts. Since t
 
 ## Production Use & Roadmap
 
-This tool is an MVP designed for static analysis of individual Docassemble interviews. For production use in legaltech organizations (like [Lemma Legal](https://lemmalegal.com)), see:
-
-- **[`PRODUCTION_ENHANCEMENTS.md`](PRODUCTION_ENHANCEMENTS.md)** - Comprehensive plan for production-ready features
-- **[`LEMMA_LEGAL_INTEGRATION.md`](LEMMA_LEGAL_INTEGRATION.md)** - Specific integration opportunities with Lemma Legal workflows
-- **[`TOBYFEY_REPOS_ANALYSIS.md`](TOBYFEY_REPOS_ANALYSIS.md)** - Analysis of real-world Docassemble repositories and patterns (e.g., Assembly Line, Legal Elements Library)
-
-### Planned Production Features
-
-**Priority 1 (Critical for Production)**:
-- **Multi-file interview support** - Analyze interviews across multiple files (`include:`, modules)
-- **CI/CD integration** - Pre-deployment validation in deployment pipelines (GitHub Actions, pre-commit hooks)
-- **Batch analysis** - Analyze multiple interviews at once
-
-**Priority 2 (High Value for Legal Compliance)**:
-- **Change impact analysis** - Track statute citations and detect affected interviews
-- **Authority queries** - `--find-authority "CPLR 308"` to find all affected nodes
-- **Compliance reporting** - Generate reports mapping statutes to interviews
-
-**Priority 3 (Enhanced User Experience)**:
-- **HTML visualization** - Interactive viewers for non-technical stakeholders
-- **Cross-interview analysis** - Identify reusable components across template libraries
-- **Documentation generation** - Auto-generate dependency docs
+This tool is an MVP designed for static analysis of individual Docassemble interviews. 
 
 ### Current Version Suitability
-
-**Suitable for**:
-- ✅ Analyzing individual interview files
-- ✅ Understanding dependency structures
-- ✅ Validating interview logic (cycles, missing dependencies)
-- ✅ Generating dependency documentation
-- ✅ Statute citation tracking (basic)
-
-**Now available in v0.2.0+**:
-- ✅ Multi-file interviews with `include:` (`--include-files`)
-- ✅ CI/CD pipeline integration (GitHub Actions template included)
-- ✅ Batch processing directories (directory input support)
-- ✅ Authority queries (`--find-authority "CPLR 308"`)
-- ✅ Cross-interview analysis (batch processing merges graphs)
-
-**Now available in v0.3+**:
-- ✅ Assembly Line support (AL_ prefix recognition)
-- ✅ Object attribute handling (person.name → person dependency)
-- ✅ Modules directive parsing (cross-repository dependencies)
-
-**Not yet available**:
-- ❌ Graph comparison utilities (planned for v0.4)
-- ❌ HTML interactive viewer (planned for v0.4)
-- ❌ Change impact reports (planned for v0.4)
-- ❌ Template variable validation (planned for v0.4)
 
 ### Contributing to Production Features
 

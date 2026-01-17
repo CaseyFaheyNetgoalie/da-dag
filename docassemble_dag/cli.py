@@ -121,6 +121,17 @@ Examples:
         nargs="+",
         help="Validate template files (DOCX, PDF, Mako) against interview graph. Provide paths to template files."
     )
+    parser.add_argument(
+    "--serve-graphql",
+    action="store_true",
+    help="Start GraphQL server for interactive queries"
+    )
+    parser.add_argument(
+    "--graphql-port",
+    type=int,
+    default=8000,
+    help="Port for GraphQL server (default: 8000)"
+    )
     
     args = parser.parse_args()
     
@@ -360,6 +371,12 @@ Examples:
         indent = 2 if args.pretty else None
         output_text = json.dumps(struct, indent=indent, ensure_ascii=False)
     
+    if args.serve_graphql:
+        from .graphql.server import serve
+        print(f"Starting GraphQL server on port {args.graphql_port}...")
+        serve(graph, port=args.graphql_port)
+        sys.exit(0)  # Server runs until stopped
+
     # Write output
     if args.output:
         output_path = Path(args.output)

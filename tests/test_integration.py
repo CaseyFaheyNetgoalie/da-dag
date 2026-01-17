@@ -53,10 +53,10 @@ rules:
         assert set(nodes.keys()) == expected_nodes
         
         # Verify node kinds
-        assert nodes["age"].kind.value == "variable"
-        assert nodes["is_adult"].kind.value == "variable"
-        assert nodes["ask_age"].kind.value == "question"
-        assert nodes["eligibility_rule"].kind.value == "rule"
+        assert nodes["age"].kind.value.lower() == "variable"
+        assert nodes["is_adult"].kind.value.lower() == "variable"
+        assert nodes["ask_age"].kind.value.lower() == "question"
+        assert nodes["eligibility_rule"].kind.value.lower() == "rule"
         
         # Verify source metadata
         assert nodes["age"].source == "user_input"

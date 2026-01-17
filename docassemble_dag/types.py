@@ -11,10 +11,10 @@ from typing import Optional, Dict, Any
 
 class NodeKind(Enum):
     """Type of node in the dependency graph."""
-    VARIABLE = "variable"
-    QUESTION = "question"
-    RULE = "rule"
-    ASSEMBLY_LINE = "assembly_line"  # Assembly Line variable (AL_ prefix)
+    VARIABLE = "VARIABLE"
+    QUESTION = "QUESTION"
+    RULE = "RULE"
+    ASSEMBLY_LINE = "ASSEMBLY_LINE"  # Assembly Line variable (AL_ prefix)
 
 
 class DependencyType(Enum):

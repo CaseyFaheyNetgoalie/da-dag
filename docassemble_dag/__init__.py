@@ -52,6 +52,8 @@ from .utils import (
     parse_with_includes,
 )
 from .validation import GraphValidator, PolicySeverity, PolicyViolation
+from .graphql.schema import create_schema
+from .graphql.server import create_server
 
 __all__ = [
     # Core types
@@ -113,6 +115,8 @@ __all__ = [
     "parse_multiple_files",
     "find_nodes_by_authority",
     "parse_with_includes",
+    "create_schema", 
+    "create_server"
 ]
 
 # Assembly Line and object attribute support available in v0.3+

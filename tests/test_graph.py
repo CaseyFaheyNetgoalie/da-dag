@@ -143,7 +143,7 @@ class TestDependencyGraph:
         
         # Check node structure
         age_node = next(n for n in json_struct["nodes"] if n["name"] == "age")
-        assert age_node["kind"] == "variable"
+        assert age_node["kind"].lower() == "variable"
         assert age_node["source"] == "user_input"
         assert age_node["authority"] is None
         
