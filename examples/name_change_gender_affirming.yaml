@@ -1,0 +1,362 @@
+---
+metadata:
+  title: Gender-Affirming Name Change
+  short title: Name Change
+  description: |
+    Multi-jurisdiction name change petition generator.
+    Supports gender-affirming name changes with jurisdiction-specific requirements.
+  authors:
+    - name: Docassemble DAG Example
+  revision_date: 2026-01-18
+---
+features:
+  question help button: True
+  question back button: True
+  progress bar: True
+  navigation: True
+---
+# Assembly Line for standardized court forms
+modules:
+  - docassemble.AssemblyLine.assembly_line
+---
+# Objects using Assembly Line conventions
+objects:
+  - petitioner: ALIndividual
+  - AL_court: ALCourt
+  - AL_documents: ALDocumentBundle.using(
+      title="Name Change Documents",
+      filename="name_change_packet"
+    )
+---
+# Jurisdiction-specific variables
+variables:
+  - name: jurisdiction
+    # State determines required documents and process
+  
+  - name: petitioner_dob
+  
+  - name: petitioner_current_address
+  
+  - name: new_name_first
+  
+  - name: new_name_middle
+  
+  - name: new_name_last
+  
+  - name: reason_for_change
+    expression: "gender_identity"  # Could be other reasons too
+  
+  - name: criminal_history
+  
+  - name: bankruptcy_history
+  
+  - name: petitioner_income_monthly
+  
+  - name: federal_poverty_level
+    expression: 1255  # Monthly FPL for 1 person (2026), would update yearly
+  
+  - name: income_eligible_fee_waiver
+    expression: petitioner_income_monthly <= federal_poverty_level * 1.5
+    authority: "State Court Fee Waiver Guidelines"
+  
+  - name: AL_filing_fee
+    code: |
+      # Fee varies by jurisdiction
+      fees = {
+        "MA": 0 if income_eligible_fee_waiver else 165,
+        "OH": 0 if income_eligible_fee_waiver else 115,
+        "CA": 0 if income_eligible_fee_waiver else 435,
+        "NY": 0 if income_eligible_fee_waiver else 210,
+        "TX": 0 if income_eligible_fee_waiver else 274,
+        "FL": 0 if income_eligible_fee_waiver else 401
+      }
+      AL_filing_fee = fees.get(jurisdiction, 200)  # Default $200
+    authority: "State Court Fee Schedules"
+  
+  - name: requires_publication
+    expression: jurisdiction in ["OH", "TX", "FL", "GA", "TN"]
+    authority: "State Name Change Statutes"
+  
+  - name: requires_background_check
+    expression: jurisdiction in ["TX", "FL", "GA", "AZ"]
+    authority: "State Name Change Statutes"
+  
+  - name: requires_hearing
+    expression: jurisdiction not in ["CA", "NY", "MA"]
+    authority: "State Name Change Statutes"
+  
+  - name: publication_newspaper
+  
+  - name: publication_cost
+    expression: 150  # Approximate
+  
+  - name: documents_needed
+    code: |
+      docs = ["petition", "decree_template"]
+      if requires_publication:
+        docs.append("publication_notice")
+      if requires_background_check:
+        docs.append("background_check_form")
+      if income_eligible_fee_waiver:
+        docs.append("fee_waiver")
+      documents_needed = docs
+---
+# Questions for intake
+questions:
+  - name: ask_jurisdiction
+    question: In what state do you want to file for a name change?
+    fields:
+      - State: jurisdiction
+        code: |
+          states_list()
+    help: |
+      You should file in the state where you currently live.
+  
+  - name: ask_petitioner_info
+    question: What is your current legal name?
+    fields:
+      - First name: petitioner.name.first
+      - Middle name: petitioner.name.middle
+        required: False
+      - Last name: petitioner.name.last
+      - Date of birth: petitioner_dob
+        datatype: date
+  
+  - name: ask_new_name
+    question: What name would you like to use?
+    fields:
+      - First name: new_name_first
+      - Middle name: new_name_middle
+        required: False
+      - Last name: new_name_last
+    help: |
+      Choose the name you want to use going forward. 
+      This will be your legal name after the court approves your petition.
+  
+  - name: ask_address
+    question: What is your current address?
+    fields:
+      - Street address: petitioner.address.address
+      - Unit/Apt: petitioner.address.unit
+        required: False
+      - City: petitioner.address.city
+      - State: petitioner.address.state
+        code: states_list()
+        default: jurisdiction
+      - Zip: petitioner.address.zip
+  
+  - name: ask_criminal_history
+    question: Have you ever been convicted of a felony?
+    yesno: criminal_history
+    help: |
+      Some states require disclosure of criminal history.
+      Having a criminal record does NOT automatically prevent a name change.
+  
+  - name: ask_bankruptcy_history
+    question: Have you filed for bankruptcy in the last 7 years?
+    yesno: bankruptcy_history
+    help: |
+      This is required disclosure in some states.
+  
+  - name: ask_income
+    question: What is your monthly income?
+    fields:
+      - Monthly income: petitioner_income_monthly
+        datatype: currency
+    help: |
+      Include all sources of income. This determines if you qualify 
+      for a fee waiver (free filing).
+      
+      % if jurisdiction == "MA":
+      In Massachusetts, you may qualify for a fee waiver if your monthly 
+      income is less than ${currency(federal_poverty_level * 1.5)}.
+      % elif jurisdiction == "OH":
+      In Ohio, you may qualify for a fee waiver if your monthly 
+      income is less than ${currency(federal_poverty_level * 1.5)}.
+      % endif
+  
+  - name: ask_publication_details
+    question: Publication Requirements
+    show if: requires_publication
+    subquestion: |
+      ${jurisdiction} requires you to publish your name change petition 
+      in a local newspaper.
+      
+      This typically costs around ${currency(publication_cost)}.
+    fields:
+      - What newspaper will you use?: publication_newspaper
+        help: |
+          Choose a newspaper of general circulation in your county.
+          Your court clerk can recommend options.
+  
+  - name: ask_court_selection
+    question: Which court will you file in?
+    fields:
+      - County: AL_court.address.county
+      - Court name: AL_court.name
+        default: |
+          % if jurisdiction == "MA":
+          Probate and Family Court
+          % elif jurisdiction == "OH":
+          Probate Court
+          % elif jurisdiction == "CA":
+          Superior Court
+          % elif jurisdiction == "NY":
+          Supreme Court
+          % else:
+          Circuit Court
+          % endif
+    help: |
+      Usually you file in the county where you live.
+---
+# Rules for document generation
+rules:
+  - name: fee_waiver_eligibility
+    expression: income_eligible_fee_waiver
+    authority: "In forma pauperis statute by state"
+    description: "Determines eligibility for court fee waiver"
+  
+  - name: publication_required_rule
+    expression: requires_publication
+    authority: "State name change publication requirements"
+    description: "Determines if newspaper publication is required"
+  
+  - name: total_cost_estimate
+    code: |
+      total = AL_filing_fee
+      if requires_publication:
+        total += publication_cost
+      if requires_background_check:
+        total += 50  # Approximate background check fee
+      total_cost_estimate = total
+    description: "Calculates total estimated cost for name change"
+---
+# Document assembly
+attachment:
+  - name: Name Change Petition
+    filename: name_change_petition
+    variable name: petition_document
+    docx template file: name_change_petition_template.docx
+    valid formats:
+      - pdf
+      - docx
+---
+# Final screen
+mandatory: True
+code: |
+  # Interview flow
+  ask_jurisdiction
+  ask_petitioner_info
+  ask_new_name
+  ask_address
+  ask_criminal_history
+  ask_bankruptcy_history
+  ask_income
+  
+  if requires_publication:
+    ask_publication_details
+  
+  ask_court_selection
+  
+  # Show final screen
+  final_instructions
+---
+event: final_instructions
+question: Your Name Change Petition
+subquestion: |
+  ## Next Steps
+  
+  Here's what you need to do to change your name from 
+  **${petitioner.name.full()}** to **${new_name_first} ${new_name_middle} ${new_name_last}**:
+  
+  ### 1. Documents to File
+  
+  % for doc in documents_needed:
+  - ${doc.replace('_', ' ').title()}
+  % endfor
+  
+  ### 2. Filing Information
+  
+  - **Court**: ${AL_court.name}, ${AL_court.address.county} County
+  - **State**: ${jurisdiction}
+  - **Filing Fee**: ${currency(AL_filing_fee)}
+  % if income_eligible_fee_waiver:
+  - ✓ **You qualify for a fee waiver** (filing for free)
+  % endif
+  
+  ### 3. Special Requirements for ${jurisdiction}
+  
+  % if requires_publication:
+  - **Publication Required**: You must publish notice in ${publication_newspaper} (cost: ~${currency(publication_cost)})
+  % endif
+  
+  % if requires_background_check:
+  - **Background Check Required**: You must submit fingerprints for a background check
+  % endif
+  
+  % if requires_hearing:
+  - **Court Hearing Required**: A judge will review your petition at a hearing
+  % else:
+  - **No Hearing Required**: The judge can approve your petition without a hearing
+  % endif
+  
+  ### 4. Timeline
+  
+  % if jurisdiction == "MA":
+  - File petition → Wait for hearing (4-8 weeks) → Receive decree
+  % elif jurisdiction == "OH":
+  - File petition → Publish notice (3 weeks) → Attend hearing → Receive decree
+  - Total: 6-10 weeks
+  % elif jurisdiction == "CA":
+  - File petition → Wait for approval (6-12 weeks) → Receive decree
+  % else:
+  - File petition → Complete requirements → Attend hearing → Receive decree
+  - Total: 8-12 weeks
+  % endif
+  
+  ### 5. Total Estimated Cost
+  
+  ${currency(total_cost_estimate)}
+  
+  % if total_cost_estimate == 0:
+  ✓ **Free** with fee waiver
+  % endif
+  
+  ### 6. After You Get Your Decree
+  
+  Once approved, you'll need to update your name with:
+  
+  - Social Security Administration
+  - DMV / Driver's License
+  - Passport
+  - Banks and credit cards
+  - Employers
+  - Schools
+  - Insurance
+  - Voter registration
+  
+  ---
+  
+  ## Legal Notes
+  
+  % if criminal_history:
+  **Criminal History**: You disclosed a felony conviction. The court will consider this 
+  but it usually does not prevent a name change, especially for gender-affirming reasons.
+  % endif
+  
+  % if bankruptcy_history:
+  **Bankruptcy**: You disclosed a bankruptcy. You may need to notify your bankruptcy 
+  trustee of the name change.
+  % endif
+  
+  ---
+  
+  ## Get Your Documents
+  
+  Click below to download your completed forms.
+  
+buttons:
+  - Download PDF: petition_document
+    datatype: file
+  - Exit: exit
+  - Restart: restart

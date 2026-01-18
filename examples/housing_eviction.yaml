@@ -1,0 +1,322 @@
+---
+metadata:
+  title: Eviction Defense Intake
+  short title: Eviction Defense
+  description: |
+    Automated intake for tenants facing eviction.
+  authors:
+    - name: Docassemble DAG Example
+  revision_date: 2026-01-18
+---
+# Multi-language support and accessibility features
+features:
+  question help button: True
+  question back button: True
+  navigation: True
+  progress bar: True
+---
+# External modules for income calculation and legal utilities
+modules:
+  - docassemble.income
+  - docassemble.base.legal
+---
+# Objects for complex data structures
+objects:
+  - tenant: Individual
+  - landlord: Individual
+  - rental_unit: Address
+  - court: Court
+  - lease_agreement: DAObject
+---
+# Core variables with authority citations
+variables:
+  - name: eviction_type
+    # Types: nonpayment, lease_violation, no_cause
+  
+  - name: rent_owed
+    authority: "Ohio Rev. Code § 5321.17"
+  
+  - name: has_written_notice
+  
+  - name: notice_date
+  
+  - name: filing_date
+  
+  - name: notice_period_valid
+    expression: |
+      notice_date and filing_date and 
+      (filing_date - notice_date).days >= 3
+    authority: "Ohio Rev. Code § 1923.04"
+  
+  - name: income_monthly
+  
+  - name: area_median_income
+    expression: 50000  # Placeholder - would fetch from HUD data
+  
+  - name: tenant_income_eligible
+    expression: income_monthly <= area_median_income * 0.80 / 12
+    authority: "Legal Aid Income Guidelines"
+  
+  - name: has_repair_requests
+  
+  - name: repair_request_date
+  
+  - name: rent_payment_proof
+  
+  - name: landlord_retaliation
+  
+  - name: has_valid_defense
+    expression: |
+      (not notice_period_valid) or 
+      has_repair_requests or 
+      rent_payment_proof or
+      landlord_retaliation
+    authority: "Ohio Rev. Code § 5321.02, § 5321.07"
+  
+  - name: case_number
+  
+  - name: notice_contains_required_info
+    expression: True  # Simplified for example
+  
+  - name: recommended_action
+    code: |
+      if has_valid_defense:
+        recommended_action = "file_answer"
+      elif tenant_income_eligible and rent_owed < 5000:
+        recommended_action = "rental_assistance"
+      else:
+        recommended_action = "negotiate_settlement"
+---
+# Questions with conditional logic
+questions:
+  - name: ask_tenant_info
+    question: What is your name?
+    fields:
+      - First name: tenant.name.first
+      - Middle name: tenant.name.middle
+        required: False
+      - Last name: tenant.name.last
+  
+  - name: ask_eviction_basics
+    question: What type of eviction are you facing?
+    subquestion: |
+      Look at the eviction notice you received from your landlord or the court.
+    fields:
+      - Type of eviction: eviction_type
+        choices:
+          - Nonpayment of rent: nonpayment
+          - Lease violation: lease_violation
+          - No cause/month-to-month: no_cause
+    help: |
+      **Nonpayment of rent**: You allegedly didn't pay rent.
+      
+      **Lease violation**: You allegedly broke a rule in your lease.
+      
+      **No cause**: You're on a month-to-month lease and landlord wants you out.
+  
+  - name: ask_rent_amount
+    question: How much rent does your landlord claim you owe?
+    show if: eviction_type == "nonpayment"
+    fields:
+      - Amount owed: rent_owed
+        datatype: currency
+        min: 0
+    help: |
+      Look at the eviction notice or court complaint. 
+      Enter the total amount your landlord says you owe.
+  
+  - name: ask_notice_received
+    question: Did you receive a written eviction notice before being sued?
+    yesno: has_written_notice
+    help: |
+      This is usually a "3-Day Notice to Leave" or similar document from your landlord,
+      delivered before they filed the eviction case in court.
+  
+  - name: ask_notice_details
+    question: When did you receive the eviction notice?
+    show if: has_written_notice
+    fields:
+      - Date you received notice: notice_date
+        datatype: date
+      - Date case was filed in court: filing_date
+        datatype: date
+        required: False
+        help: Check the court papers for the filing date
+  
+  - name: ask_defenses
+    question: Do any of these situations apply to you?
+    subquestion: Select all that apply
+    fields:
+      - I requested repairs that weren't made: has_repair_requests
+        datatype: yesno
+      - I have proof I paid the rent: rent_payment_proof
+        datatype: yesno
+      - This eviction seems like retaliation: landlord_retaliation
+        datatype: yesno
+        help: |
+          Retaliation means your landlord is evicting you because you:
+          - Complained about housing conditions
+          - Called a housing inspector
+          - Joined a tenants' union
+          - Exercised a legal right
+  
+  - name: ask_repair_details
+    question: When did you request repairs?
+    show if: has_repair_requests
+    fields:
+      - Date of repair request: repair_request_date
+        datatype: date
+      - What repairs did you request?: repair_description
+        datatype: area
+        rows: 4
+  
+  - name: ask_income
+    question: What is your total monthly household income?
+    fields:
+      - Monthly income: income_monthly
+        datatype: currency
+    help: |
+      Include ALL sources of income:
+      - Wages from jobs
+      - Social Security
+      - Disability benefits
+      - Unemployment
+      - Child support
+      - Any other income
+  
+  - name: ask_court_info
+    question: What court is your eviction case in?
+    fields:
+      - Court name: court.name
+      - County: court.address.county
+      - Case number: case_number
+        required: False
+        help: Found on your court papers, usually looks like "2026-CVG-12345"
+---
+# Rules with multiple authority citations
+rules:
+  - name: eviction_defense_eligibility
+    expression: |
+      tenant_income_eligible and 
+      (has_valid_defense or rent_owed < 2000)
+    authority: "Ohio Rev. Code § 1923, Legal Aid Income Guidelines"
+    description: "Determines if tenant qualifies for legal aid representation"
+  
+  - name: notice_validity_check
+    expression: |
+      has_written_notice and 
+      notice_period_valid and
+      notice_contains_required_info
+    authority: "Ohio Rev. Code § 1923.04"
+    description: "Validates landlord's eviction notice compliance"
+  
+  - name: urgent_deadline_check
+    expression: |
+      filing_date and (date_difference(starting=filing_date, ending=today()).days <= 7)
+    authority: "Ohio Civ. R. 4.1 - 7 days to respond"
+    description: "Checks if tenant is within urgent filing deadline"
+---
+# Final screen with recommendations
+mandatory: True
+code: |
+  ask_tenant_info
+  ask_eviction_basics
+  if eviction_type == "nonpayment":
+    ask_rent_amount
+  ask_notice_received
+  if has_written_notice:
+    ask_notice_details
+  ask_defenses
+  if has_repair_requests:
+    ask_repair_details
+  ask_income
+  ask_court_info
+  
+  final_screen
+---
+event: final_screen
+question: Your Eviction Defense Options
+subquestion: |
+  Based on your answers, here's what we recommend:
+  
+  % if recommended_action == "file_answer":
+  ## File an Answer to the Eviction
+  
+  You appear to have valid defenses to this eviction. You should:
+  
+  1. File an Answer with the court **within 7 days**
+  2. Attend your court hearing
+  3. Consider contacting a legal aid attorney
+  
+  **Your defenses include:**
+  
+  % if not notice_period_valid:
+  - The landlord didn't give you proper notice (Ohio law requires at least 3 days)
+  % endif
+  % if has_repair_requests:
+  - You requested repairs on ${repair_request_date} that weren't made
+  % endif
+  % if rent_payment_proof:
+  - You have proof of rent payment
+  % endif
+  % if landlord_retaliation:
+  - This appears to be retaliation, which is illegal
+  % endif
+  
+  % elif recommended_action == "rental_assistance":
+  ## Apply for Rental Assistance
+  
+  You may qualify for emergency rental assistance to pay the rent owed (${currency(rent_owed)}).
+  
+  **Next steps:**
+  
+  1. Contact your local Community Action Agency
+  2. Apply for emergency rental assistance
+  3. File an Answer with the court to buy time
+  4. Bring proof of assistance application to court
+  
+  % else:
+  ## Negotiate with Your Landlord
+  
+  Consider negotiating a payment plan or move-out agreement.
+  
+  **Options to discuss:**
+  
+  - Payment plan for ${currency(rent_owed)}
+  - More time to move out
+  - Agreement to dismiss the eviction case
+  - Return of security deposit
+  
+  % endif
+  
+  ---
+  
+  **Case Information:**
+  
+  - Court: ${court.name}, ${court.address.county} County
+  - Case Number: ${case_number if defined('case_number') else "Not yet assigned"}
+  - Filing Date: ${filing_date if defined('filing_date') else "Unknown"}
+  
+  **Income Eligibility:**
+  
+  % if tenant_income_eligible:
+  ✓ You appear to qualify for free legal aid based on income
+  % else:
+  ✗ Your income may be too high for free legal aid, but some organizations offer sliding scale fees
+  % endif
+  
+  ---
+  
+  **Important Deadlines:**
+  
+  - Answer must be filed within **7 days** of being served
+  - Court hearing date: Check your court papers
+  
+  **Get Help:**
+  
+  - Legal Aid Society: 1-800-XXX-XXXX
+  - Tenant Hotline: 1-800-XXX-XXXX
+  - Housing Court Help Center: Available at courthouse
+buttons:
+  - Exit: exit
+  - Restart: restart

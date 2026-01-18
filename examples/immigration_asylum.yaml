@@ -1,0 +1,523 @@
+---
+metadata:
+  title: Asylum Application Intake
+  short title: Asylum
+  description: |
+    Multi-language asylum application intake questionnaire.
+    Supports English, Spanish, Portuguese, and Haitian Creole.
+  authors:
+    - name: Docassemble DAG Example
+  revision_date: 2026-01-18
+---
+# Multi-language configuration
+features:
+  question help button: True
+  question back button: True
+  progress bar: True
+  bootstrap theme: https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css
+  locale: ${primary_language}
+---
+# Translation support
+modules:
+  - docassemble.base.util
+---
+# Language configuration
+default language: en
+language: |
+  ${primary_language}
+---
+# Objects for application data
+objects:
+  - applicant: Individual
+  - family_members: DAList.using(object_type=Individual)
+  - country_conditions: DAObject
+  - persecution_events: DAList.using(object_type=DAObject)
+  - supporting_documents: DAList.using(object_type=DAObject)
+---
+# Core variables
+variables:
+  - name: primary_language
+    default: "en"
+  
+  - name: needs_interpreter
+    expression: primary_language != "en"
+  
+  - name: country_of_origin
+  
+  - name: entry_date
+  
+  - name: days_since_entry
+    code: |
+      from datetime import date
+      days_since_entry = (date.today() - entry_date).days
+  
+  - name: persecution_basis
+    # Race, religion, nationality, political opinion, particular social group
+  
+  - name: credible_fear_interview_scheduled
+  
+  - name: removal_proceedings_active
+  
+  - name: immediate_danger
+    expression: |
+      days_since_entry <= 365 and
+      (credible_fear_interview_scheduled or 
+       removal_proceedings_active)
+    authority: "8 USC § 1158(a)(2)(B)"
+  
+  - name: application_deadline
+    code: |
+      from datetime import timedelta
+      if days_since_entry <= 365:
+        application_deadline = entry_date + timedelta(days=365)
+      else:
+        application_deadline = None  # Past deadline - need extraordinary circumstances
+    authority: "8 USC § 1158(a)(2)(B) - One Year Filing Deadline"
+  
+  - name: application_filed
+  
+  - name: application_pending_days
+    expression: 0  # Would calculate from filing date
+  
+  - name: granted_asylum
+    expression: False  # Would update based on decision
+  
+  - name: eligible_for_work_permit
+    expression: |
+      application_filed and
+      (application_pending_days >= 150 or granted_asylum)
+    authority: "8 CFR § 208.7"
+  
+  - name: persecution_narrative
+  
+  - name: persecution_date
+  
+  - name: persecution_reason
+  
+  - name: fear_of_return
+  
+  - name: government_unable_to_protect
+  
+  - name: travel_warning_level
+    expression: "high"  # Would fetch from State Dept API
+---
+# Questions with multi-language support
+questions:
+  - name: language_selection
+    question: |
+      % if user_initial_lang == "es":
+      ¿En qué idioma prefiere continuar?
+      % elif user_initial_lang == "pt":
+      Em que idioma você prefere continuar?
+      % elif user_initial_lang == "ht":
+      Nan ki lang ou vle kontinye?
+      % else:
+      What language would you like to continue in?
+      % endif
+    fields:
+      - no label: primary_language
+        choices:
+          - English: en
+          - Español (Spanish): es
+          - Português (Portuguese): pt
+          - Kreyòl Ayisyen (Haitian Creole): ht
+    help: |
+      % if user_initial_lang == "es":
+      Seleccione su idioma preferido. Un intérprete estará disponible si es necesario.
+      % elif user_initial_lang == "pt":
+      Selecione seu idioma preferido. Um intérprete estará disponível se necessário.
+      % elif user_initial_lang == "ht":
+      Chwazi lang ou prefere. Yon entèprèt ap disponib si sa nesesè.
+      % else:
+      Select your preferred language. An interpreter will be available if needed.
+      % endif
+  
+  - name: ask_applicant_info
+    question: |
+      % if primary_language == "es":
+      ¿Cuál es su nombre?
+      % elif primary_language == "pt":
+      Qual é o seu nome?
+      % elif primary_language == "ht":
+      Ki non ou?
+      % else:
+      What is your name?
+      % endif
+    fields:
+      - ${ "Nombre" if primary_language == "es" else "Nome" if primary_language == "pt" else "Non" if primary_language == "ht" else "First name" }: applicant.name.first
+      - ${ "Apellido" if primary_language == "es" else "Sobrenome" if primary_language == "pt" else "Siyati" if primary_language == "ht" else "Last name" }: applicant.name.last
+      - ${ "Fecha de nacimiento" if primary_language == "es" else "Data de nascimento" if primary_language == "pt" else "Dat nesans" if primary_language == "ht" else "Date of birth" }: applicant.birthdate
+        datatype: date
+  
+  - name: ask_country_origin
+    question: |
+      % if primary_language == "es":
+      ¿De qué país viene?
+      % elif primary_language == "pt":
+      De que país você vem?
+      % elif primary_language == "ht":
+      Ki peyi ou soti?
+      % else:
+      What country are you from?
+      % endif
+    fields:
+      - no label: country_of_origin
+        code: countries_list()
+  
+  - name: ask_entry_date
+    question: |
+      % if primary_language == "es":
+      ¿Cuándo llegó a los Estados Unidos?
+      % elif primary_language == "pt":
+      Quando você chegou aos Estados Unidos?
+      % elif primary_language == "ht":
+      Kilè ou rive Ozetazini?
+      % else:
+      When did you enter the United States?
+      % endif
+    fields:
+      - ${ "Fecha de entrada" if primary_language == "es" else "Data de entrada" if primary_language == "pt" else "Dat antre" if primary_language == "ht" else "Entry date" }: entry_date
+        datatype: date
+    help: |
+      % if primary_language == "es":
+      Esta fecha es muy importante. Debe solicitar asilo dentro de 1 año de su entrada.
+      % elif primary_language == "pt":
+      Esta data é muito importante. Você deve solicitar asilo dentro de 1 ano da sua entrada.
+      % elif primary_language == "ht":
+      Dat sa a enpòtan anpil. Ou dwe aplike pou azil nan 1 an apre ou antre.
+      % else:
+      This date is very important. You must apply for asylum within 1 year of your entry.
+      % endif
+  
+  - name: deadline_warning
+    question: |
+      % if primary_language == "es":
+      ⚠️ ADVERTENCIA DE PLAZO
+      % elif primary_language == "pt":
+      ⚠️ AVISO DE PRAZO
+      % elif primary_language == "ht":
+      ⚠️ AVÈTISMAN POU DELÈ
+      % else:
+      ⚠️ DEADLINE WARNING
+      % endif
+    subquestion: |
+      % if days_since_entry > 365:
+        % if primary_language == "es":
+        Ha pasado más de 1 año desde que entró a EE.UU. (${days_since_entry} días).
+        
+        Todavía puede solicitar asilo, pero necesitará demostrar circunstancias extraordinarias 
+        que le impidieron presentar la solicitud a tiempo.
+        % elif primary_language == "pt":
+        Já passou mais de 1 ano desde que você entrou nos EUA (${days_since_entry} dias).
+        
+        Você ainda pode solicitar asilo, mas precisará demonstrar circunstâncias extraordinárias 
+        que o impediram de aplicar a tempo.
+        % elif primary_language == "ht":
+        Li pase plis pase 1 an depi ou te antre Ozetazini (${days_since_entry} jou).
+        
+        Ou ka toujou aplike pou azil, men ou pral bezwen montre sikonstans ekstraòdinè 
+        ki te anpeche ou aplike alè.
+        % else:
+        It has been more than 1 year since you entered the U.S. (${days_since_entry} days).
+        
+        You may still apply for asylum, but you will need to show extraordinary circumstances 
+        that prevented you from filing on time.
+        % endif
+      % else:
+        % if primary_language == "es":
+        Usted tiene hasta ${application_deadline} para presentar su solicitud de asilo.
+        
+        Eso es en ${365 - days_since_entry} días. ¡Es importante actuar pronto!
+        % elif primary_language == "pt":
+        Você tem até ${application_deadline} para apresentar seu pedido de asilo.
+        
+        Isso é em ${365 - days_since_entry} dias. É importante agir logo!
+        % elif primary_language == "ht":
+        Ou gen jiska ${application_deadline} pou soumèt aplikasyon azil ou.
+        
+        Sa se nan ${365 - days_since_entry} jou. Li enpòtan pou aji vit!
+        % else:
+        You have until ${application_deadline} to file your asylum application.
+        
+        That's in ${365 - days_since_entry} days. It's important to act soon!
+        % endif
+      % endif
+    continue button field: acknowledged_deadline
+  
+  - name: ask_persecution_basis
+    question: |
+      % if primary_language == "es":
+      ¿Por qué teme regresar a su país?
+      % elif primary_language == "pt":
+      Por que você tem medo de voltar ao seu país?
+      % elif primary_language == "ht":
+      Poukisa ou pè retounen nan peyi ou?
+      % else:
+      Why do you fear returning to your country?
+      % endif
+    fields:
+      - no label: persecution_basis
+        choices:
+          - ${ "Raza o etnia" if primary_language == "es" else "Raça ou etnia" if primary_language == "pt" else "Ras oswa etnisite" if primary_language == "ht" else "Race or ethnicity" }: race
+          - ${ "Religión" if primary_language == "es" else "Religião" if primary_language == "pt" else "Relijyon" if primary_language == "ht" else "Religion" }: religion
+          - ${ "Nacionalidad" if primary_language == "es" else "Nacionalidade" if primary_language == "pt" else "Nasyonalite" if primary_language == "ht" else "Nationality" }: nationality
+          - ${ "Opinión política" if primary_language == "es" else "Opinião política" if primary_language == "pt" else "Opinyon politik" if primary_language == "ht" else "Political opinion" }: political
+          - ${ "Miembro de un grupo social particular" if primary_language == "es" else "Membro de um grupo social particular" if primary_language == "pt" else "Manm yon gwoup sosyal patikilye" if primary_language == "ht" else "Member of a particular social group" }: social_group
+        datatype: checkboxes
+  
+  - name: ask_persecution_details
+    question: |
+      % if primary_language == "es":
+      Cuéntenos qué le sucedió
+      % elif primary_language == "pt":
+      Conte-nos o que aconteceu com você
+      % elif primary_language == "ht":
+      Di nou sa ki te rive ou
+      % else:
+      Tell us what happened to you
+      % endif
+    fields:
+      - ${ "¿Qué le sucedió?" if primary_language == "es" else "O que aconteceu com você?" if primary_language == "ht" else "Sa ki te rive ou?" if primary_language == "ht" else "What happened to you?" }: persecution_narrative
+        datatype: area
+        rows: 10
+      - ${ "¿Cuándo sucedió esto?" if primary_language == "es" else "Quando isso aconteceu?" if primary_language == "pt" else "Kilè sa te rive?" if primary_language == "ht" else "When did this happen?" }: persecution_date
+        datatype: date
+    help: |
+      % if primary_language == "es":
+      Describa los eventos con el mayor detalle posible. Incluya:
+      - Qué sucedió exactamente
+      - Quién lo hizo
+      - Dónde sucedió
+      - Por qué cree que sucedió
+      % elif primary_language == "pt":
+      Descreva os eventos com o máximo de detalhes possível. Inclua:
+      - O que aconteceu exatamente
+      - Quem fez isso
+      - Onde aconteceu
+      - Por que você acha que aconteceu
+      % elif primary_language == "ht":
+      Dekri evènman yo ak plis detay posib. Enkli:
+      - Sa ki te rive egzakteman
+      - Kilès ki te fè li
+      - Kote li te rive
+      - Poukisa ou panse li te rive
+      % else:
+      Describe the events in as much detail as possible. Include:
+      - What exactly happened
+      - Who did it
+      - Where it happened
+      - Why you think it happened
+      % endif
+  
+  - name: ask_fear_of_return
+    question: |
+      % if primary_language == "es":
+      ¿Qué teme que suceda si regresa?
+      % elif primary_language == "pt":
+      O que você teme que aconteça se voltar?
+      % elif primary_language == "ht":
+      Sa ou pè ki pral rive si ou retounen?
+      % else:
+      What do you fear will happen if you return?
+      % endif
+    fields:
+      - no label: fear_of_return
+        datatype: area
+        rows: 6
+  
+  - name: ask_government_protection
+    question: |
+      % if primary_language == "es":
+      ¿Puede el gobierno de su país protegerlo?
+      % elif primary_language == "pt":
+      O governo do seu país pode protegê-lo?
+      % elif primary_language == "ht":
+      Èske gouvènman peyi ou ka pwoteje ou?
+      % else:
+      Can your country's government protect you?
+      % endif
+    yesno: government_unable_to_protect
+    help: |
+      % if primary_language == "es":
+      Responda "No" si:
+      - El gobierno es quien lo persigue
+      - El gobierno no puede o no quiere protegerlo
+      - La policía no ayuda
+      % elif primary_language == "pt":
+      Responda "Não" se:
+      - O governo é quem o persegue
+      - O governo não pode ou não quer protegê-lo
+      - A polícia não ajuda
+      % elif primary_language == "ht":
+      Reponn "Non" si:
+      - Gouvènman an se moun k ap pèsekite ou
+      - Gouvènman an pa ka oswa pa vle pwoteje ou
+      - Lapolis pa ede
+      % else:
+      Answer "No" if:
+      - The government is persecuting you
+      - The government cannot or will not protect you
+      - The police do not help
+      % endif
+---
+# Rules with authority citations
+rules:
+  - name: one_year_deadline_rule
+    expression: days_since_entry <= 365
+    authority: "8 USC § 1158(a)(2)(B)"
+    description: "One-year asylum filing deadline"
+  
+  - name: work_permit_eligibility_rule
+    expression: eligible_for_work_permit
+    authority: "8 CFR § 208.7"
+    description: "Work permit available 150 days after filing or upon asylum grant"
+  
+  - name: persecution_basis_valid
+    expression: persecution_basis in ["race", "religion", "nationality", "political", "social_group"]
+    authority: "8 USC § 1101(a)(42)"
+    description: "Valid grounds for asylum"
+---
+# Country conditions lookup (simplified)
+code: |
+  # In production, would integrate with State Department API
+  country_conditions.travel_warning = travel_warning_level
+  country_conditions.human_rights_report_available = True
+  country_conditions.asylum_grant_rate = 0.45  # Example: 45% grant rate
+---
+# Final screen
+mandatory: True
+code: |
+  language_selection
+  ask_applicant_info
+  ask_country_origin
+  ask_entry_date
+  
+  # Show deadline warning if applicable
+  if days_since_entry >= 335:  # Within 30 days of deadline
+    deadline_warning
+  
+  ask_persecution_basis
+  ask_persecution_details
+  ask_fear_of_return
+  ask_government_protection
+  
+  final_summary
+---
+event: final_summary
+question: |
+  % if primary_language == "es":
+  Su Solicitud de Asilo
+  % elif primary_language == "pt":
+  Seu Pedido de Asilo
+  % elif primary_language == "ht":
+  Aplikasyon Azil Ou
+  % else:
+  Your Asylum Application
+  % endif
+subquestion: |
+  % if primary_language == "es":
+  ## Resumen de su caso
+  % elif primary_language == "pt":
+  ## Resumo do seu caso
+  % elif primary_language == "ht":
+  ## Rezime ka ou
+  % else:
+  ## Case Summary
+  % endif
+  
+  **${ "Nombre" if primary_language == "es" else "Nome" if primary_language == "pt" else "Non" if primary_language == "ht" else "Name" }:** ${applicant.name.full()}
+  
+  **${ "País de origen" if primary_language == "es" else "País de origem" if primary_language == "pt" else "Peyi orijin" if primary_language == "ht" else "Country of origin" }:** ${country_of_origin}
+  
+  **${ "Fecha de entrada" if primary_language == "es" else "Data de entrada" if primary_language == "pt" else "Dat antre" if primary_language == "ht" else "Entry date" }:** ${entry_date}
+  
+  ---
+  
+  % if primary_language == "es":
+  ## ⏰ Plazos Importantes
+  % elif primary_language == "pt":
+  ## ⏰ Prazos Importantes
+  % elif primary_language == "ht":
+  ## ⏰ Delè Enpòtan
+  % else:
+  ## ⏰ Important Deadlines
+  % endif
+  
+  % if application_deadline:
+    % if primary_language == "es":
+    - Debe presentar su solicitud antes del: **${application_deadline}**
+    - Días restantes: **${365 - days_since_entry}**
+    % elif primary_language == "pt":
+    - Você deve apresentar seu pedido antes de: **${application_deadline}**
+    - Dias restantes: **${365 - days_since_entry}**
+    % elif primary_language == "ht":
+    - Ou dwe soumèt aplikasyon ou anvan: **${application_deadline}**
+    - Jou ki rete: **${365 - days_since_entry}**
+    % else:
+    - You must file your application by: **${application_deadline}**
+    - Days remaining: **${365 - days_since_entry}**
+    % endif
+  % else:
+    % if primary_language == "es":
+    - ⚠️ Ha pasado el plazo de 1 año
+    - Necesitará demostrar circunstancias extraordinarias
+    % elif primary_language == "pt":
+    - ⚠️ O prazo de 1 ano já passou
+    - Você precisará demonstrar circunstâncias extraordinárias
+    % elif primary_language == "ht":
+    - ⚠️ Delè 1 an an pase deja
+    - Ou pral bezwen montre sikonstans ekstraòdinè
+    % else:
+    - ⚠️ 1-year deadline has passed
+    - You will need to show extraordinary circumstances
+    % endif
+  % endif
+  
+  ---
+  
+  % if primary_language == "es":
+  ## 📋 Próximos Pasos
+  % elif primary_language == "pt":
+  ## 📋 Próximos Passos
+  % elif primary_language == "ht":
+  ## 📋 Pwochen Etap
+  % else:
+  ## 📋 Next Steps
+  % endif
+  
+  1. ${ "Busque un abogado de inmigración" if primary_language == "es" else "Procure um advogado de imigração" if primary_language == "pt" else "Jwenn yon avoka imigrasyonn" if primary_language == "ht" else "Find an immigration attorney" }
+  2. ${ "Reúna evidencia de persecución" if primary_language == "es" else "Reúna evidências de perseguição" if primary_language == "pt" else "Rasanble prèv pèsekisyon" if primary_language == "ht" else "Gather evidence of persecution" }
+  3. ${ "Complete el Formulario I-589" if primary_language == "es" else "Complete o Formulário I-589" if primary_language == "pt" else "Ranpli Fòm I-589" if primary_language == "ht" else "Complete Form I-589" }
+  4. ${ "Presente la solicitud a USCIS" if primary_language == "es" else "Apresente o pedido ao USCIS" if primary_language == "pt" else "Soumèt aplikasyon bay USCIS" if primary_language == "ht" else "File application with USCIS" }
+  
+  % if needs_interpreter:
+    % if primary_language == "es":
+  
+  **🗣️ Intérprete**: Usted califica para un intérprete gratuito en su entrevista de asilo.
+    % elif primary_language == "pt":
+  
+  **🗣️ Intérprete**: Você tem direito a um intérprete gratuito na sua entrevista de asilo.
+    % elif primary_language == "ht":
+  
+  **🗣️ Entèprèt**: Ou kalifye pou yon entèprèt gratis nan entèvyou azil ou.
+    % endif
+  % endif
+  
+  ---
+  
+  % if primary_language == "es":
+  ## 📞 Recursos
+  % elif primary_language == "pt":
+  ## 📞 Recursos
+  % elif primary_language == "ht":
+  ## 📞 Resous
+  % else:
+  ## 📞 Resources
+  % endif
+  
+  - USCIS: 1-800-375-5283
+  - ${ "Ayuda Legal Gratuita" if primary_language == "es" else "Ajuda Jurídica Gratuita" if primary_language == "pt" else "Asistans Legal Gratis" if primary_language == "ht" else "Free Legal Help" }: immigrationadvocates.org
+  - ${ "Centro de Recursos para Inmigrantes" if primary_language == "es" else "Centro de Recursos para Imigrantes" if primary_language == "pt" else "Sant Resous pou Imigran" if primary_language == "ht" else "Immigrant Resource Center" }: 1-800-XXX-XXXX
+buttons:
+  - ${ "Salir" if primary_language == "es" else "Sair" if primary_language == "pt" else "Soti" if primary_language == "ht" else "Exit" }: exit
+  - ${ "Reiniciar" if primary_language == "es" else "Reiniciar" if primary_language == "pt" else "Rekòmanse" if primary_language == "ht" else "Restart" }: restart
