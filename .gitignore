@@ -1,4 +1,4 @@
-# Python
+# --- Python & Build ---
 __pycache__/
 *.py[cod]
 *$py.class
@@ -20,37 +20,40 @@ wheels/
 .installed.cfg
 *.egg
 
-# Virtual environments
+# --- Environments ---
+.venv/
 venv/
 env/
 ENV/
+.env
+.env.local
 
-# IDE
+# --- IDE & System ---
 .vscode/
 .idea/
 *.swp
 *.swo
 *~
+.DS_Store
 
-# Testing
+# --- Testing & Linting ---
 .pytest_cache/
 .coverage
 htmlcov/
+.pre-commit-cache/
+.mypy_cache/
+.ruff_cache/
 
-# Output files
-*.json
-!package.json
-
-# Databases (SQLite)
+# --- Databases ---
 *.db
 *.sqlite
 *.sqlite3
-
-# PostgreSQL (if needed)
 *.pgdump
 
-# Virtual environments (additional)
-.venv/
-venv/
-env/
-ENV/
+# --- Project Specific ---
+# Remove the generic *.json ignore if you plan to commit config files
+# *.json 
+# !package.json
+
+# Ignore documentation builds
+docs/_build/

@@ -1,4 +1,0 @@
-pyyaml>=5.4.0
-
-# Optional: PostgreSQL support
-# psycopg2-binary>=2.9.0
