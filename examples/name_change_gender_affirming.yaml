@@ -23,10 +23,7 @@ modules:
 objects:
   - petitioner: ALIndividual
   - AL_court: ALCourt
-  - AL_documents: ALDocumentBundle.using(
-      title="Name Change Documents",
-      filename="name_change_packet"
-    )
+  - AL_documents: ALDocumentBundle.using(title="Name Change Documents", filename="name_change_packet")
 ---
 # Jurisdiction-specific variables
 variables:

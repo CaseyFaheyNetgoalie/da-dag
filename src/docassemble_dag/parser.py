@@ -329,6 +329,8 @@ class DocassembleParser:
                 variables.extend(items)
         
         for var in variables:
+            if var is None:
+                continue
             name = self._get_name(var)
             if not name:
                 continue
@@ -358,6 +360,8 @@ class DocassembleParser:
             questions = []
         
         for q in questions:
+            if q is None:
+                continue
             name = self._get_name(q)
             if not name:
                 continue
@@ -389,6 +393,8 @@ class DocassembleParser:
             rules = []
         
         for rule in rules:
+            if rule is None:
+                continue
             name = self._get_name(rule)
             if not name:
                 continue
@@ -411,6 +417,8 @@ class DocassembleParser:
             objects = []
         
         for obj_def in objects:
+            if obj_def is None:
+                continue
             # Objects can be defined as: {object_name: object_type}
             if isinstance(obj_def, dict):
                 for obj_name, obj_type in obj_def.items():
@@ -564,6 +572,8 @@ class DocassembleParser:
                 items = []
             
             for item in items:
+                if item is None:
+                    continue
                 dst_name = self._get_name(item)
                 if not dst_name:
                     continue
@@ -593,6 +603,8 @@ class DocassembleParser:
                 items = []
             
             for item in items:
+                if item is None:
+                    continue
                 dst_name = self._get_name(item)
                 if not dst_name:
                     continue

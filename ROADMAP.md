@@ -316,7 +316,7 @@ We track these metrics to measure project success:
 
 - 💬 Discuss features in [GitHub Discussions](https://github.com/yourusername/docassemble-dag/discussions)
 - 🐛 Report bugs in [GitHub Issues](https://github.com/yourusername/docassemble-dag/issues)
-- 📧 Contact maintainers at [maintainer@example.com](mailto:maintainer@example.com)
+- 📧 Contact maintainers by submitting an issue or pull request
 
 ---
 

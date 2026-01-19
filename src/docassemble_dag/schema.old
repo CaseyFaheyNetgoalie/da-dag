@@ -173,10 +173,6 @@ def validate_yaml_structure(yaml_dict: Dict[str, Any]) -> List[str]:
             
             # Validate each item in the section
             for i, item in enumerate(items):
-                # Skip None values gracefully (they can appear in YAML)
-                if item is None:
-                    continue
-                
                 if not isinstance(item, dict):
                     errors.append(f"{section_name}[{i}] must be a dictionary, got {type(item).__name__}")
                     continue

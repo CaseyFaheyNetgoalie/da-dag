@@ -402,6 +402,30 @@ class DocassembleParser:
                 line_number=self._find_line_number('name', rule)
             )
         
+        # Extract objects (Docassemble DAObjects)
+        # Format: objects:
+        #   - person: Individual
+        #   - household: DAList.using(object_type=Individual)
+        objects = self.raw.get('objects', [])
+        if not isinstance(objects, list):
+            objects = []
+        
+        for obj_def in objects:
+            # Objects can be defined as: {object_name: object_type}
+            if isinstance(obj_def, dict):
+                for obj_name, obj_type in obj_def.items():
+                    if obj_name not in nodes:
+                        # Store object type in metadata for reference
+                        nodes[obj_name] = Node(
+                            name=obj_name,
+                            kind=NodeKind.VARIABLE,  # Objects are variables
+                            source="derived",  # Objects are instantiated, not user input
+                            authority=None,
+                            file_path=self.file_path,
+                            line_number=self._find_line_number_by_name(obj_name),
+                            metadata={"object_type": str(obj_type)}
+                        )
+        
         # Check if self.raw itself IS a top-level question/variable block
         # This handles YAML like:
         #   question: What is your name?
