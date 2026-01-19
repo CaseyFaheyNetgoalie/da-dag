@@ -57,18 +57,36 @@ This document outlines the planned features, enhancements, and improvements for 
   - [ ] Node search with autocomplete
   - [ ] Minimap navigation for large graphs
   - [ ] Side-by-side comparison view
+  - [ ] Path visualization between two variables
+  - [ ] "Critical path" highlighting
 
 - [ ] **Improved Template Validation**
   - [ ] Support for Markdown templates
   - [ ] Jinja2 template validation
   - [ ] Template fragment validation
   - [ ] Auto-fix suggestions for undefined variables
+  - [ ] Detect unused variables in templates
+
+- [ ] **Plain Language Validator**
+  - [ ] Reading level checks (Flesch-Kincaid scoring)
+  - [ ] Legalese detection and suggestions
+  - [ ] Sentence complexity analysis
+  - [ ] Plain language alternatives database
+  - [ ] Question clarity scoring
+
+- [ ] **Interview Flow Anti-Patterns Detector**
+  - [ ] Detect non-idempotent logic patterns
+  - [ ] Identify potential infinite loops
+  - [ ] Flag questions that might trigger "Input not processed" errors
+  - [ ] Warn about variables set multiple times
+  - [ ] Detect missing reconsider directives
 
 - [ ] **Better Error Messages**
   - [ ] Suggest fixes for common errors
   - [ ] Context-aware error messages
   - [ ] Did-you-mean suggestions for typos
   - [ ] Link to documentation from errors
+  - [ ] Show similar working examples
 
 - [ ] **CLI Improvements**
   - [ ] Progress bars for large files
@@ -77,6 +95,20 @@ This document outlines the planned features, enhancements, and improvements for 
   - [ ] Watch mode (auto-reload on file changes)
 
 #### Medium Priority
+- [ ] **WCAG AA Accessibility Checker**
+  - [ ] Color contrast validation
+  - [ ] Screen reader compatibility checks
+  - [ ] Keyboard navigation validation
+  - [ ] Alt text presence verification
+  - [ ] Form label compliance
+  - [ ] ARIA attribute validation
+
+- [ ] **Question Order Optimizer**
+  - [ ] Suggest optimal question ordering
+  - [ ] Identify questions that could be consolidated
+  - [ ] Detect unnecessary branching
+  - [ ] Recommend question grouping strategies
+
 - [ ] **Performance Optimizations**
   - [ ] Parallel file processing
   - [ ] Incremental graph updates
@@ -98,18 +130,47 @@ This document outlines the planned features, enhancements, and improvements for 
   - [ ] Auto-generate authority citations
   - [ ] Detect common anti-patterns
   - [ ] Smart refactoring suggestions
+  - [ ] Predict likely user paths through interview
+
+- [ ] **Staff Automation Opportunity Detector**
+  - [ ] Identify repeated code patterns across interviews
+  - [ ] Suggest modularization opportunities
+  - [ ] Calculate time savings from automation
+  - [ ] Generate refactoring recommendations
+  - [ ] Detect copy-paste code duplication
+  - [ ] Suggest module extraction for shared logic
+
+- [ ] **Intelligent Question Generation**
+  - [ ] Generate question templates from variable names
+  - [ ] Suggest field types based on variable usage
+  - [ ] Auto-generate help text
+  - [ ] Recommend validation rules
 
 - [ ] **Natural Language Queries**
   - [ ] Ask questions about dependencies in plain English
   - [ ] Generate summaries of graph structure
   - [ ] Explain dependency chains in natural language
+  - [ ] "What happens if..." scenario exploration
 
 - [ ] **Auto-Documentation**
   - [ ] Generate flowcharts from graphs
   - [ ] Auto-create user guides
   - [ ] Generate test scenarios
+  - [ ] Create onboarding documentation
 
 #### Medium Priority
+- [ ] **Multi-Language Dependency Tracker**
+  - [ ] Track translation coverage across languages
+  - [ ] Identify untranslated variables and questions
+  - [ ] Validate language-specific dependencies
+  - [ ] Generate translation gap reports
+  - [ ] Support for multi-locale interviews
+
+- [ ] **Context-Aware Code Completion**
+  - [ ] Variable name suggestions
+  - [ ] Template variable auto-completion
+  - [ ] Import suggestions based on usage
+
 - [ ] **Intelligent Validation**
   - [ ] Context-aware validation rules
   - [ ] Learn from validation history
@@ -124,23 +185,51 @@ This document outlines the planned features, enhancements, and improvements for 
   - [ ] Language server protocol (LSP) support
   - [ ] Inline dependency hints
   - [ ] Real-time validation
+  - [ ] Jump-to-definition for variables
+  - [ ] Inline documentation on hover
 
-- [ ] **Testing Tools**
+- [ ] **Case Management Integration Validator**
+  - [ ] Clio integration validation
+  - [ ] LegalServer integration validation
+  - [ ] Practice Panther integration validation
+  - [ ] API endpoint testing
+  - [ ] Data mapping verification
+  - [ ] Authentication flow validation
+  - [ ] Webhook configuration checks
+
+- [ ] **Automated Testing Suite Generator**
   - [ ] Generate test cases from graph
   - [ ] Coverage analysis (which paths tested?)
   - [ ] Mock data generation
   - [ ] Regression testing for graph changes
+  - [ ] API-based automated interview testing
+  - [ ] Generate Behave/Gherkin test scenarios
+  - [ ] Random path testing
+
+- [ ] **Playground Sync Tools**
+  - [ ] Two-way sync with Playground
+  - [ ] Conflict resolution helpers
+  - [ ] Multi-developer collision detection
+  - [ ] Version control integration
 
 - [ ] **Development Server**
   - [ ] Live reload during development
   - [ ] Debug mode with step-through
   - [ ] Dependency visualization overlay
+  - [ ] Variable state inspector
 
 #### Medium Priority
+- [ ] **Interview Complexity Metrics**
+  - [ ] Cyclomatic complexity for interview logic
+  - [ ] Maintainability index
+  - [ ] Technical debt indicators
+  - [ ] Suggested refactoring priorities
+
 - [ ] **Build Tools**
   - [ ] Webpack/Vite plugin
   - [ ] Pre-commit hooks generator
   - [ ] Custom policy plugin system
+  - [ ] CI/CD pipeline templates
 
 ### 📊 v0.9.0 - Enterprise Features (Q4 2026)
 **Focus: Scale & Governance**
@@ -151,18 +240,28 @@ This document outlines the planned features, enhancements, and improvements for 
   - [ ] Role-based access control
   - [ ] Audit logging
   - [ ] Collaboration features
+  - [ ] Team workspaces
 
 - [ ] **Advanced Persistence**
   - [ ] Graph versioning with diffs
   - [ ] Branching and merging
   - [ ] Rollback capabilities
   - [ ] Graph migrations
+  - [ ] Interview snapshot comparison
 
 - [ ] **Compliance & Governance**
   - [ ] Custom compliance rules engine
   - [ ] Automated compliance reports
   - [ ] Policy enforcement at CI/CD level
   - [ ] Compliance dashboard
+  - [ ] Regulatory change tracking
+
+- [ ] **Interview Analytics Dashboard**
+  - [ ] Most frequently used paths
+  - [ ] Completion rate analysis
+  - [ ] Abandonment point detection
+  - [ ] Variable usage heatmaps
+  - [ ] Time-to-completion metrics
 
 #### Medium Priority
 - [ ] **Scalability**
@@ -170,6 +269,12 @@ This document outlines the planned features, enhancements, and improvements for 
   - [ ] Cloud deployment options
   - [ ] Horizontal scaling for GraphQL
   - [ ] Graph sharding for very large interviews
+
+- [ ] **Team Collaboration**
+  - [ ] Shared component library
+  - [ ] Cross-interview dependency tracking
+  - [ ] Reusable pattern repository
+  - [ ] Interview template marketplace
 
 ---
 
@@ -181,24 +286,42 @@ This document outlines the planned features, enhancements, and improvements for 
   - [ ] Trace actual execution paths
   - [ ] Performance profiling
   - [ ] Runtime validation
+  - [ ] Live session debugging
 
 - [ ] **Advanced Visualization**
   - [ ] 3D graph visualization
   - [ ] Timeline view for execution flow
   - [ ] Heatmaps for frequently used paths
   - [ ] Animated dependency resolution
+  - [ ] Interactive "what-if" scenario modeling
+
+- [ ] **Visual Interview Builder**
+  - [ ] Drag-and-drop question designer
+  - [ ] Flow-chart based logic editor
+  - [ ] Template visual editor
+  - [ ] Real-time preview mode
+  - [ ] Export to YAML
 
 - [ ] **Machine Learning**
   - [ ] Predict interview completion time
   - [ ] Suggest interview structure improvements
   - [ ] Auto-optimize question ordering
   - [ ] Detect interview logic bugs
+  - [ ] User experience prediction
+
+- [ ] **Cross-Platform Analysis**
+  - [ ] Compare Docassemble with A2J Author
+  - [ ] Import/export to other interview platforms
+  - [ ] Universal interview format converter
+  - [ ] Migration assistance tools
 
 - [ ] **Integration Hub**
   - [ ] Slack notifications for validation failures
   - [ ] Jira integration for tracking issues
   - [ ] GitHub issue auto-creation
   - [ ] Email reports
+  - [ ] MS Teams integration
+  - [ ] Asana/Monday.com task creation
 
 ### Platform Support
 - [ ] **Web Application**
@@ -206,11 +329,13 @@ This document outlines the planned features, enhancements, and improvements for 
   - [ ] Team collaboration features
   - [ ] Shared graph library
   - [ ] Interview marketplace
+  - [ ] Community contribution platform
 
 - [ ] **Mobile Support**
   - [ ] Mobile-friendly HTML viewer
   - [ ] iOS/Android native apps
   - [ ] Offline viewing
+  - [ ] On-device validation
 
 ### Developer Tools
 - [ ] **Code Generation**
@@ -218,39 +343,58 @@ This document outlines the planned features, enhancements, and improvements for 
   - [ ] Scaffold new interviews from templates
   - [ ] Auto-generate documentation
   - [ ] Generate unit tests
+  - [ ] Create API wrappers
 
 - [ ] **Refactoring Tools**
-  - [ ] Safe variable renaming
-  - [ ] Extract common logic
+  - [ ] Safe variable renaming across files
+  - [ ] Extract common logic to modules
   - [ ] Merge duplicate variables
   - [ ] Split complex rules
+  - [ ] Automated code modernization
+
+- [ ] **Interview Migration Tools**
+  - [ ] Upgrade interviews to new Docassemble versions
+  - [ ] Migrate from deprecated features
+  - [ ] Batch refactoring across interview suites
+  - [ ] Breaking change impact analysis
 
 ---
 
-## Community-Requested Features
+## Community-Driven Features
 
-*Features requested by the community. Vote on these by opening/commenting on GitHub issues.*
+*Vote on these by opening/commenting on GitHub issues.*
 
 ### High Interest
-- [ ] Export to other formats (Mermaid, PlantUML)
+- [ ] Export to other formats (Mermaid, PlantUML, BPMN)
 - [ ] Better support for DAList and DADict
 - [ ] Track question skip logic (show if/enable if)
 - [ ] Visual graph editor (drag-and-drop)
 - [ ] Import from other interview systems
+- [ ] Session state visualization
+- [ ] Interview performance benchmarking
 
 ### Under Consideration
 - [ ] Support for non-YAML interview formats
-- [ ] Integration with LegalServer
 - [ ] A2J Author compatibility
 - [ ] Custom metadata extraction
 - [ ] Blockchain-based audit trails
+- [ ] Interview monetization/licensing tools
+- [ ] Multi-interview orchestration
+- [ ] Interview A/B testing framework
+
+### Legal-Specific Features
+- [ ] Court form standards validation (e.g., NC AOC, CA Judicial Council)
+- [ ] E-filing integration testing
+- [ ] Legal citation validation
+- [ ] Jurisdiction-specific compliance checks
+- [ ] Client portal integration testing
 
 ---
 
 ## How to Contribute
 
 ### Request a Feature
-1. Check existing [GitHub Issues](https://github.com/yourusername/docassemble-dag/issues)
+1. Check existing [GitHub Issues](https://github.com/CaseyFaheyNetgoalie/da-dag/issues)
 2. Open a new issue with the `feature-request` label
 3. Describe the use case and expected behavior
 4. Community votes via 👍 reactions
@@ -274,8 +418,6 @@ Priority features can be sponsored:
 
 - **Minor versions** (0.x.0): Quarterly
 - **Patch versions** (0.x.y): As needed for bug fixes
-- **Major version** (1.0.0): When API is stable (estimated Q4 2026)
-
 ---
 
 ## Deprecation Policy
@@ -295,30 +437,30 @@ Priority features can be sponsored:
 
 We track these metrics to measure project success:
 
-### Adoption
-- **Target**: 100+ stars on GitHub by Q2 2026
-- **Target**: 50+ organizations using in production by Q4 2026
-- **Target**: 10+ community contributors by end of 2026
-
 ### Quality
 - **Target**: 90%+ test coverage
 - **Target**: <5 open critical bugs
 - **Target**: <48hr average response time on issues
+- **Target**: 95%+ upward compatibility between versions
 
 ### Performance
 - **Target**: Parse 1000-node graph in <1 second
 - **Target**: GraphQL query response <100ms
 - **Target**: HTML viewer handles 5000+ nodes smoothly
+- **Target**: Validate 100-file interview suite in <30 seconds
+
+### Community Impact
+- **Target**: 500+ interviews analyzed
+- **Target**: 10,000+ validation errors caught before production
+- **Target**: 100+ hours of developer time saved per organization
 
 ---
 
 ## Questions?
 
-- 💬 Discuss features in [GitHub Discussions](https://github.com/yourusername/docassemble-dag/discussions)
-- 🐛 Report bugs in [GitHub Issues](https://github.com/yourusername/docassemble-dag/issues)
+- 💬 Discuss features in [GitHub Discussions](https://github.com/CaseyFaheyNetgoalie/da-dag/discussions)
+- 🐛 Report bugs in [GitHub Issues](https://github.com/CaseyFaheyNetgoalie/da-dag/issues)
 - 📧 Contact maintainers by submitting an issue or pull request
-
 ---
 
 **Last Updated**: January 2026
-**Next Review**: April 2026
